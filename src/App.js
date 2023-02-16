@@ -7,14 +7,25 @@ import SearchBox from './components/search-box/search-box.component';
 import { useState, useEffect } from 'react';
 
 const App = () => {
-  console.log("render")
   const [searchField, setSearchField] = useState(''); // [value, setValue]
   const [monsters, setMonsters] = useState([]);
+  const [filteredMonsters, setFilteredMonsters] = useState(monsters)
+  const [stringField, setStringField] = useState('');
 
-  fetch('https://jsonplaceholder.typicode.com/users')
+  useEffect(() => {
+    console.log("useEffect fetch call")
+    fetch('https://jsonplaceholder.typicode.com/users')
       .then((response) => response.json())
-      .then((users) => setMonsters(users)
-  );
+      .then((users) => setMonsters(users));
+  }, [])
+  useEffect(() => {
+    const newfilteredMonsters = monsters.filter((monster) => {
+      return monster.name.toLocaleLowerCase().includes(searchField)
+    });
+    setFilteredMonsters(newfilteredMonsters);
+    console.log("useEffect filterMonsters")
+  },[monsters, searchField])
+
 
   const onSearchChange = (event)=>{
     console.log(event)
@@ -22,16 +33,18 @@ const App = () => {
     setSearchField(searchFieldString)
   }
 
-  const filteredMonsters = monsters.filter((monster) => {
-    return monster.name.toLocaleLowerCase().includes(searchField)
-  })
+  const onStringChange = (event)=>{
+    setStringField(event.target.value)
+  }
+
 
   return (
     <div className="App">
         <h1 className="app-title"> Monsters Rolodex</h1>
         <SearchBox 
           className='monsters-search-box'
-          onChangeHandler = {onSearchChange} 
+          onChangeHandler = {onSearchChange}
+          placeholder="search monsters"
         />
         <CardList monsters={filteredMonsters} />
       </div>
